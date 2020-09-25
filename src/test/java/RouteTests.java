@@ -1,3 +1,4 @@
+import core.data.CalculateRequestEntity;
 import core.route.RouteConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,11 +22,10 @@ public class RouteTests {
     @Test
     public void get() throws Exception {
 
-        webClient.get().uri("/calculate").accept(MediaType.APPLICATION_JSON)
+        webClient.get().uri("/calculate", new CalculateRequestEntity("fun1", "fun2", 2, "out")).accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(String.class)
-                .isEqualTo("Hello, world!");
+                .expectBody(CalculateRequestEntity.class);
     }
 
 }
