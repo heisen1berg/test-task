@@ -1,4 +1,4 @@
-import core.config.RouteConfig;
+import core.route.RouteConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class RouteTests {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
-                .isEqualTo("Hello, Spring!");
+                .isEqualTo("Hello, world!");
     }
 
 }
