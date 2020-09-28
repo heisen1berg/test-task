@@ -1,17 +1,22 @@
 package core.route;
 
 
-import core.route.handler.HandlerInterface;
+import core.route.handler.CalculateWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.server.WebSocketService;
+import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService;
+import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
+import org.springframework.web.reactive.socket.server.upgrade.ReactorNettyRequestUpgradeStrategy;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootConfiguration
 @EnableWebFlux
@@ -19,10 +24,24 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RouteConfig {
 
     @Autowired
-    private HandlerInterface handler;
+    private WebSocketHandler handler;
 
     @Bean
-    public RouterFunction<ServerResponse> calculateRoute() {
-        return route(GET("/calculate"), handler::calculate);
+    public HandlerMapping handlerMapping() {
+        Map<String, WebSocketHandler> map = new HashMap<>();
+        map.put("/calculate", new CalculateWebSocketHandler());
+        int order = -1; // before annotated controllers
+
+        return new SimpleUrlHandlerMapping(map, order);
+    }
+
+    @Bean
+    public WebSocketHandlerAdapter handlerAdapter() {
+        return new WebSocketHandlerAdapter();
+    }
+
+    @Bean
+    public WebSocketService webSocketService() {
+        return new HandshakeWebSocketService(new ReactorNettyRequestUpgradeStrategy());
     }
 }
