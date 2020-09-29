@@ -5,6 +5,13 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 
 public class CalculatorPicker {
     public static Calculator pickCalculator(CalculateRequestEntity calculateRequestEntity, WebSocketSession webSocketSession) {
-        return new OrderCalculator(calculateRequestEntity, webSocketSession);
+        switch (calculateRequestEntity.getOutputMode()) {
+            case "no_order":
+                return new NoOrderCalculator(calculateRequestEntity, webSocketSession);
+            default:
+            case "order":
+                return new OrderCalculator(calculateRequestEntity, webSocketSession);
+        }
+
     }
 }
