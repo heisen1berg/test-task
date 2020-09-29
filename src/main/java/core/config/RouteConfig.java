@@ -1,7 +1,7 @@
-package core.route;
+package core.config;
 
 
-import core.route.handler.CalculateWebSocketHandler;
+import core.handle.CalculateWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 @SpringBootConfiguration
 @EnableWebFlux
-@ComponentScan(value = "core.route.handler")
+@ComponentScan(value = "core.handle")
 public class RouteConfig {
 
     @Autowired
