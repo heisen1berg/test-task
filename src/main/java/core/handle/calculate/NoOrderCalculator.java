@@ -6,79 +6,64 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 
 public class NoOrderCalculator extends Calculator {
-    private Integer iterationsRemain1;
-    private Integer iterationsRemain2;
-    private int iterationsDone1 = 0;
-    private int iterationsDone2 = 0;
-    private int argument1 = 1;
-    private int argument2 = 1;
+    private int iterationsToDo;
 
     public NoOrderCalculator(CalculateRequestEntity calculateRequestEntity, WebSocketSession webSocketSession) {
         super(calculateRequestEntity, webSocketSession);
-        iterationsRemain1 = calculateRequestEntity.getIterationCount();
-        iterationsRemain2 = calculateRequestEntity.getIterationCount();
+        iterationsToDo = calculateRequestEntity.getIterationCount();
     }
 
     @Override
     public Flux<WebSocketMessage> getOutput() {
-        Flux<WebSocketMessage> fluxForFun1 = Flux.create(sink -> {
-            new CalculatorListener() {
-                @Override
-                public void iterate() {
-                    final long startTime = System.currentTimeMillis();
+        final CustomFlux customFlux1 = new CustomFlux(iterationsToDo, calculateRequestEntity.getFirstFun(), 1);
+        final CustomFlux customFlux2 = new CustomFlux(iterationsToDo, calculateRequestEntity.getSecondFun(), 2);
 
-                    Object funResult = (FunctionExecutor.execute(calculateRequestEntity.getFirstFun(), argument1++));
+        return Flux.merge(customFlux1.getFlux(), customFlux2.getFlux());
+    }
 
-                    final long endTime = System.currentTimeMillis();
+    private class CustomFlux {
+        public Integer iterationsRemain;
+        public int iterationsDone = 0;
+        public int argument = 1;
+        public int functionNumber;
 
-                    iterationsRemain1--;
-                    iterationsDone1++;
-                    if (funResult == null) funResult = "null";
+        private String function;
 
-                    final String iterationNum = "Iteration #" + iterationsDone1;
-                    final String functionNumber = "Function #1";
-                    final String resultString = "Result: " + funResult;
-                    final String time = "Time: " + (endTime - startTime);
-                    sink.next(webSocketSession.textMessage(iterationNum + ", " + functionNumber + ", " + resultString + ", " + time));
+        public CustomFlux(int iterationsRemain, String function, int functionNumber) {
+            this.iterationsRemain = iterationsRemain;
+            this.function = function;
+            this.functionNumber = functionNumber;
+        }
+
+        public Flux<WebSocketMessage> getFlux() {
+            return Flux.create(sink -> {
+                new CalculatorListener() {
+                    @Override
+                    public void iterate() {
+                        final long startTime = System.currentTimeMillis();
+
+                        Object funResult = (FunctionExecutor.execute(function, argument++));
+
+                        final long endTime = System.currentTimeMillis();
+
+                        iterationsRemain--;
+                        iterationsDone++;
+                        if (funResult == null) funResult = "null";
+
+                        final String iterationString = "Iteration #" + iterationsDone;
+                        final String functionString = "Function #" + functionNumber;
+                        final String resultString = "Result: " + funResult;
+                        final String time = "Time: " + (endTime - startTime);
+                        sink.next(webSocketSession.textMessage(iterationString + ", " + functionString + ", " + resultString + ", " + time));
 
 
-                    if (iterationsRemain1 == 0) {
-                        sink.complete();
-                        CalculatorIterator.removeListener(this);
+                        if (iterationsRemain == 0) {
+                            sink.complete();
+                            this.close();
+                        }
                     }
-                }
-            };
-        });
-
-        Flux<WebSocketMessage> fluxForFun2 = Flux.create(sink -> {
-            new CalculatorListener() {
-                @Override
-                public void iterate() {
-                    final long startTime = System.currentTimeMillis();
-
-                    Object funResult = (FunctionExecutor.execute(calculateRequestEntity.getSecondFun(), argument2++));
-
-                    final long endTime = System.currentTimeMillis();
-
-                    iterationsRemain2--;
-                    iterationsDone2++;
-                    if (funResult == null) funResult = "null";
-
-                    final String iterationNum = "Iteration #" + iterationsDone2;
-                    final String functionNumber = "Function #2";
-                    final String resultString = "Result: " + funResult;
-                    final String time = "Time: " + (endTime - startTime);
-                    sink.next(webSocketSession.textMessage(iterationNum + ", " + functionNumber + ", " + resultString + ", " + time));
-
-
-                    if (iterationsRemain2 == 0) {
-                        sink.complete();
-                        CalculatorIterator.removeListener(this);
-                    }
-                }
-            };
-        });
-
-        return Flux.merge(fluxForFun1, fluxForFun2);
+                };
+            });
+        }
     }
 }

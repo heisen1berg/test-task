@@ -16,4 +16,8 @@ abstract class CalculatorListener {
     }
 
     public abstract void iterate();
+
+    public void close() {
+        CalculatorIterator.removeListener(this);
+    }
 }
