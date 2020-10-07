@@ -5,6 +5,9 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class OrderCalculator extends Calculator {
 
@@ -25,8 +28,8 @@ public class OrderCalculator extends Calculator {
             final int iterDifference = customFlux1.iterationsDone - customFlux2.iterationsDone;
             final String result1 = "result:" + mes1.getPayloadAsText();
             final String result2 = "result:" + mes2.getPayloadAsText();
-            final String time1 = "time:" + customFlux1.executionTime[iterationNum - 1] + "ms";
-            final String time2 = "time:" + customFlux2.executionTime[iterationNum - 1] + "ms";
+            final String time1 = "time:" + customFlux1.executionTime.get(iterationNum - 1) + "ms";
+            final String time2 = "time:" + customFlux2.executionTime.get(iterationNum - 1) + "ms";
             final String ahead1 = "ahead:" + (iterDifference > 0 ? Integer.toString(iterDifference) : "0");
             final String ahead2 = "ahead:" + (iterDifference < 0 ? Integer.toString(-iterDifference) : "0");
 
@@ -40,7 +43,7 @@ public class OrderCalculator extends Calculator {
         public Integer iterationsRemain;
         public int argument = 1;
         public int iterationsDone = 0;
-        public long[] executionTime = new long[10];
+        public List<Long> executionTime = new ArrayList();
 
         private String function;
 
@@ -59,7 +62,7 @@ public class OrderCalculator extends Calculator {
                         Object funResult = (FunctionExecutor.execute(function, argument++));
 
                         final long endTime = System.currentTimeMillis();
-                        executionTime[iterationsDone] = endTime - startTime;
+                        executionTime.add(endTime - startTime);
 
                         iterationsRemain--;
                         iterationsDone++;
