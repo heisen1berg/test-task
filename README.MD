@@ -1,5 +1,7 @@
-Финальная-версия
+Microservice on reactive stack, consumes JS-code of 2 functions of 1 integer argument and executes them asynchronously. Client can customize the order the service produces its output, which is shown in the demo below. In demo 2 sorting algorithms were used for increasingly large arrays of random numbers: merge sort and bubble sort.
 
-https://youtu.be/A3WQnVAVv5I - демонстрация работы.
+Микросервис на рективном стеке. Принимает на исполнение 2 JS-функции от одного integer аргумента и асинхронно их исполняет. Клиент может настраивать в каком порядке он хочет получать результаты, что показано в демонстрации по ссылке ниже. В демонстрации были использованы 2 алгоритма сортировки: слиянием и пузырьком - для постоянно увеличивающегося большого массива случайных чисел.
 
-В качестве функций для проверки были использованы два алгоритма сортировки на JavaScript: Пузырьком и Слиянием. Алгоритм генерирует массив размером 500*arg из рандомных чисел из диапизона [0,100000] и сортирует его. Продемонстрирован вывод в упорядоченном виде и в неупорядоченном. Продемонстрировано выполнение одновременно 2 запросов с разными типами вывода.
+
+https://youtu.be/A3WQnVAVv5I - DEMO
+
